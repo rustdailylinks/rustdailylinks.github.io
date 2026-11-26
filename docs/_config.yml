@@ -1,0 +1,41 @@
+# ---------- 基本信息 ----------
+title: Rust 日报 · 链接合集
+description: Rust 日报公众号文章的来源链接与挑战答案，按日期归档
+lang: zh-CN
+url: "https://rustdailylinks.github.io"   # 站点根地址，不要带末尾斜杠
+repository: "rustdailylinks/rustdailylinks.github.io"
+baseurl: ""               # 项目站必填；如果仓库是 <用户名>.github.io 本身，改成 ""
+
+# ---------- 主题 ----------
+theme: jekyll-theme-primer
+
+# ---------- 构建 ----------
+timezone: Asia/Shanghai              # 决定 _posts 文件名日期和页面日期的对应关系
+markdown: kramdown
+kramdown:
+  input: GFM                         # 用 GitHub 风格 Markdown 解析
+highlighter: rouge
+permalink: /:year-:month-:day/       # 每天的链接页 URL 形如 /2026-11-22/
+
+# ---------- 插件（均为 GitHub Pages 原生支持） ----------
+plugins:
+  - jekyll-feed                      # 生成 RSS（/feed.xml）
+  - jekyll-seo-tag                   # 补全页面标题与描述
+  - jekyll-sitemap                   # 生成 sitemap.xml
+
+# ---------- 默认值 ----------
+defaults:
+  - scope:
+      path: ""
+      type: "posts"                  # _posts 里的文件自动用 post 布局，
+    values:                          # 每天新建文件时连 layout 都不用写
+      layout: "post"
+
+# ---------- 不发布到站点的本地文件 ----------
+exclude:
+  - README.md
+  - make_cover.py
+  - vendor/
+  - .bundle/
+  - Gemfile
+  - Gemfile.lock

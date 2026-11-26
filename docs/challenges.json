@@ -1,0 +1,17 @@
+---
+layout: null
+permalink: /challenges.json
+---
+{% assign entries = "" %}
+{% for post in site.posts reversed %}
+  {% assign e = post.challenges | where: "level", "easy" | first %}
+  {% assign m = post.challenges | where: "level", "medium" | first %}
+  {% assign h = post.challenges | where: "level", "hard" | first %}
+  {% capture entry %}, {"{{ post.date | date: "%Y-%m-%d" }}": {
+    "easy":   {"id": "{{ e.id }}", "title": {{ e.title | jsonify }}, "daily_no": {% if e.daily_no %}{{ e.daily_no }}{% else %}null{% endif %}},
+    "medium": {"id": "{{ m.id }}", "title": {{ m.title | jsonify }}, "daily_no": {% if m.daily_no %}{{ m.daily_no }}{% else %}null{% endif %}},
+    "hard":   {"id": "{{ h.id }}", "title": {{ h.title | jsonify }}, "daily_no": {% if h.daily_no %}{{ h.daily_no }}{% else %}null{% endif %}}
+  }}{% endcapture %}
+  {% assign entries = entries | append: entry %}
+{% endfor %}
+[{{ entries | remove_first: ", " }}]

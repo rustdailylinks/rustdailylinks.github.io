@@ -1,0 +1,208 @@
+---
+layout: default
+---
+
+<div id="post-content">
+  <!-- 自动生成的文章索引目录（默认隐藏，检测到至少 2 个小标题时自动插入到一级标题下方） -->
+  <nav id="post-toc" class="post-toc" style="display: none;"></nav>
+
+  {{ content }}
+</div>
+
+<nav class="day-nav">
+    {% if page.previous %}
+    <a class="prev" href="{{ page.previous.url | relative_url }}">← 前一天 {{ page.previous.date | date: "%m-%d" }}</a>
+    {% endif %}
+    {% if page.next %}
+    <a class="next" href="{{ page.next.url | relative_url }}">后一天 {{ page.next.date | date: "%m-%d" }} →</a>
+    {% endif %}
+</nav>
+
+{% include follow-card.html %}
+
+<!-- 右下角回顶部/目录悬浮按钮 -->
+<button id="back-to-top" class="back-to-top" type="button" aria-label="回到目录" title="回到目录">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <line x1="8" y1="6" x2="21" y2="6"></line>
+    <line x1="8" y1="12" x2="21" y2="12"></line>
+    <line x1="8" y1="18" x2="21" y2="18"></line>
+    <circle cx="3.5" cy="6" r="1" fill="currentColor"></circle>
+    <circle cx="3.5" cy="12" r="1" fill="currentColor"></circle>
+    <circle cx="3.5" cy="18" r="1" fill="currentColor"></circle>
+  </svg>
+</button>
+
+<!-- toc -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const contentEl = document.getElementById("post-content");
+  if (!contentEl) return;
+
+  // 1. 自动提取 h2 / h3 标题生成可点击跳转的索引目录
+  const tocEl = document.getElementById("post-toc");
+  const headings = contentEl.querySelectorAll("h2, h3");
+  if (tocEl && headings.length >= 2) {
+    let tocHtml = '<details open><summary><strong>📑 本期目录</strong></summary><ul>';
+    headings.forEach((heading, index) => {
+      if (!heading.id) {
+        heading.id = "section-" + index;
+      }
+      const isH3 = heading.tagName.toLowerCase() === "h3";
+      const itemClass = isH3 ? ' class="toc-h3"' : '';
+      tocHtml += `<li${itemClass}><a href="#${heading.id}">${heading.innerText}</a></li>`;
+    });
+    tocHtml += '</ul></details>';
+    tocEl.innerHTML = tocHtml;
+    tocEl.style.display = "block";
+
+    // 如果文章正文开头有 # 一级标题，把目录自动挪到一级标题正下方，视觉更自然
+    const firstH1 = contentEl.querySelector("h1");
+    if (firstH1) {
+      firstH1.insertAdjacentElement("afterend", tocEl);
+    }
+  }
+
+  // 2. 代码块右上角固定「复制」按钮 + 超长代码自动折叠
+  const codeBlocks = contentEl.querySelectorAll("div.highlighter-rouge > pre");
+  codeBlocks.forEach((block) => {
+    if (block.closest(".highlighter-rouge") && block !== block.closest(".highlighter-rouge")) return;
+    if (block.querySelector(".code-copy-btn")) return;
+
+    block.style.position = "relative";
+
+    const copyBtn = document.createElement("button");
+    copyBtn.className = "code-copy-btn";
+    copyBtn.type = "button";
+    copyBtn.innerText = "复制";
+
+    copyBtn.addEventListener("click", async () => {
+      const codeEl = block.querySelector("code");
+      const text = codeEl ? codeEl.innerText : block.innerText;
+      try {
+        await navigator.clipboard.writeText(text);
+        copyBtn.innerText = "已复制 ✓";
+        copyBtn.classList.add("copied");
+      } catch (err) {
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+        copyBtn.innerText = "已复制 ✓";
+        copyBtn.classList.add("copied");
+      }
+      setTimeout(() => {
+        copyBtn.innerText = "复制";
+        copyBtn.classList.remove("copied");
+      }, 2000);
+    });
+
+    block.appendChild(copyBtn);
+
+    const MAX_HEIGHT = 320;
+    if (block.scrollHeight > MAX_HEIGHT + 40) {
+      block.classList.add("code-collapsed");
+
+      const toggleBtn = document.createElement("button");
+      toggleBtn.className = "code-expand-btn";
+      toggleBtn.type = "button";
+      toggleBtn.innerText = "展开全部代码 ▼";
+
+      toggleBtn.addEventListener("click", () => {
+        const isCollapsed = block.classList.toggle("code-collapsed");
+        toggleBtn.innerText = isCollapsed ? "展开全部代码 ▼" : "收起代码 ▲";
+      });
+
+      block.appendChild(toggleBtn);
+    }
+  });
+});
+
+const backToTopBtn = document.getElementById("back-to-top");
+if (backToTopBtn) {
+  window.addEventListener("scroll", () => {
+    if (window.scrollY > 300) {
+      backToTopBtn.classList.add("show");
+    } else {
+      backToTopBtn.classList.remove("show");
+    }
+  }, { passive: true });
+
+  backToTopBtn.addEventListener("click", () => {
+    // 如果目录存在，自动展开目录并滚动到目录位置；否则直接回页面最顶部
+    const tocDetails = document.querySelector("#post-toc details");
+    if (tocDetails) {
+      tocDetails.open = true;
+      tocDetails.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  });
+}
+</script>
+
+<!-- day navi -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  // 仅选择最外层代码块容器，避免给内层横向滚动的 pre 重复添加按钮
+  const codeBlocks = document.querySelectorAll(".markdown-body div.highlighter-rouge, .markdown-body > pre");
+
+  codeBlocks.forEach((block) => {
+    // 防止在特殊嵌套结构（如 details 内）重复挂载
+    if (block.closest(".highlighter-rouge") && block !== block.closest(".highlighter-rouge")) return;
+    if (block.querySelector(".code-copy-btn")) return;
+
+    block.style.position = "relative";
+
+    // 1. 创建固定在右上角的「复制」按钮
+    const copyBtn = document.createElement("button");
+    copyBtn.className = "code-copy-btn";
+    copyBtn.type = "button";
+    copyBtn.innerText = "复制";
+
+    copyBtn.addEventListener("click", async () => {
+      const codeEl = block.querySelector("code");
+      const text = codeEl ? codeEl.innerText : block.innerText;
+      try {
+        await navigator.clipboard.writeText(text);
+        copyBtn.innerText = "已复制 ✓";
+        copyBtn.classList.add("copied");
+      } catch (err) {
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+        copyBtn.innerText = "已复制 ✓";
+        copyBtn.classList.add("copied");
+      }
+      setTimeout(() => {
+        copyBtn.innerText = "复制";
+        copyBtn.classList.remove("copied");
+      }, 2000);
+    });
+
+    block.appendChild(copyBtn);
+
+    // 2. 自动折叠超长代码块（超过 320px 时触发）
+    const MAX_HEIGHT = 320;
+    if (block.scrollHeight > MAX_HEIGHT + 40) {
+      block.classList.add("has-code-toggle", "code-collapsed");
+
+      const toggleBtn = document.createElement("button");
+      toggleBtn.className = "code-expand-btn";
+      toggleBtn.type = "button";
+      toggleBtn.innerText = "展开全部代码 ▼";
+
+      toggleBtn.addEventListener("click", () => {
+        const isCollapsed = block.classList.toggle("code-collapsed");
+        toggleBtn.innerText = isCollapsed ? "展开全部代码 ▼" : "收起代码 ▲";
+      });
+
+      block.appendChild(toggleBtn);
+    }
+  });
+});
+</script>

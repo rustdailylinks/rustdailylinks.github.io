@@ -1,0 +1,252 @@
+---
+---
+@import "{{ site.theme }}";
+
+/* Rust 日报链接站 · 在 primer 基础上的覆盖样式
+   目标：手机上好读（微信内置浏览器打开）、橙色与公众号主题一致、
+   链接好点、底部有关注卡片和前后日导航（布局在 _layouts/post.html）。 */
+
+.markdown-body {
+  font-size: 17px;
+  line-height: 1.8;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 16px 32px;
+}
+
+.markdown-body h1 {
+  font-size: 24px;
+  border-bottom: 2px solid #e8590c;
+  padding-bottom: 8px;
+}
+
+.markdown-body h2 {
+  font-size: 20px;
+  border-left: 4px solid #e8590c;
+  padding-left: 10px;
+  margin-top: 32px;
+}
+
+.markdown-body a {
+  color: #e8590c;
+  word-break: break-all;
+}
+
+.markdown-body li {
+  margin: 8px 0;
+}
+
+.markdown-body pre {
+  font-size: 14px;
+  line-height: 1.6;
+  overflow-x: auto;
+}
+
+/* 关注卡片（每页底部，布局里插入） */
+.follow-card {
+  margin-top: 40px;
+  padding: 20px 16px;
+  border: 1px solid #f0d9c8;
+  border-radius: 12px;
+  background: #fff8f2;
+  text-align: center;
+}
+
+.follow-card img {
+  width: 80%;
+}
+
+.follow-card p {
+  margin: 8px 0 0;
+  color: #555;
+  font-size: 15px;
+}
+
+/* 前一日 / 后一日导航 */
+.day-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+.day-nav a {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  text-align: center;
+  background: #fafafa;
+}
+
+.day-nav a.next {
+  text-align: center;
+}
+
+/* 代码块一键复制按钮 */
+.code-copy-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 10;
+  padding: 4px 10px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #586069;
+  background-color: rgba(255, 255, 255, 0.92);
+  border: 1px solid #d1d5da;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.code-copy-btn:hover {
+  color: #f74c00;
+  border-color: #f74c00;
+}
+
+.code-copy-btn.copied {
+  color: #ffffff;
+  background-color: #f74c00;
+  border-color: #f74c00;
+}
+
+/* 可折叠代码块的通用容器基础（展开状态留出底部按钮高度，防止遮挡最后一行代码） */
+div.highlighter-rouge.has-code-toggle,
+pre.has-code-toggle {
+  padding-bottom: 36px !important;
+  background-color: #f6f8fa;
+  border-radius: 6px;
+}
+
+.has-code-toggle .highlight,
+.has-code-toggle pre {
+  margin-bottom: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+/* 超长代码块折叠状态 */
+div.highlighter-rouge.code-collapsed,
+pre.code-collapsed {
+  max-height: 320px;
+  overflow: hidden;
+}
+
+/* 底部展开/收起按钮：折叠时带渐变遮罩，展开时变成纯色底栏不遮挡代码 */
+.code-expand-btn {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 36px;
+  padding: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: #f74c00;
+  background-color: #f6f8fa;
+  border: none;
+  border-top: 1px solid #eaecef;
+  border-radius: 0 0 6px 6px;
+  cursor: pointer;
+  text-align: center;
+  z-index: 5;
+}
+
+/* 仅在折叠状态下，按钮上方增加柔和的渐隐过渡提示还有更多代码 */
+.code-collapsed .code-expand-btn::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 36px;
+  height: 28px;
+  background: linear-gradient(to bottom, rgba(246, 248, 250, 0), rgba(246, 248, 250, 0.95));
+  pointer-events: none;
+}
+
+.code-expand-btn:hover {
+  background-color: #fff8f3;
+}
+
+// toc style
+html {
+  scroll-behavior: smooth;
+}
+
+.post-toc {
+  margin: 1.2rem 0 1.8rem;
+  padding: 12px 16px;
+  background-color: #f6f8fa;
+  border: 1px solid #e1e4e8;
+  border-left: 4px solid #f74c00;
+  border-radius: 6px;
+  font-size: 15px;
+}
+
+.post-toc summary {
+  cursor: pointer;
+  color: #24292e;
+  outline: none;
+  user-select: none;
+}
+
+.post-toc ul {
+  margin: 10px 0 2px !important;
+  padding-left: 18px !important;
+}
+
+.post-toc li {
+  margin: 4px 0;
+  line-height: 1.5;
+}
+
+.post-toc li.toc-h3 {
+  margin-left: 16px;
+  list-style-type: circle;
+  font-size: 14px;
+}
+
+.post-toc a {
+  color: #333333;
+  text-decoration: none;
+}
+
+.post-toc a:hover {
+  color: #f74c00;
+  text-decoration: underline;
+}
+
+/* 右下角回顶部/目录悬浮按钮（适配手机微信安全区） */
+.back-to-top {
+  position: fixed;
+  right: 18px;
+  bottom: calc(24px + env(safe-area-inset-bottom));
+  z-index: 99;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  background-color: rgba(247, 76, 0, 0.92);
+  border: none;
+  border-radius: 50%;
+  box-shadow: 0 3px 10px rgba(247, 76, 0, 0.3);
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s;
+}
+
+.back-to-top.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.back-to-top:active {
+  transform: scale(0.92);
+}
